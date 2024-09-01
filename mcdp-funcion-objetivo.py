@@ -68,7 +68,14 @@ def mcdp(C, M_max, matrizA, M, P):
     
     print(f"Número de ciclos = {epochs}")
 
-    print("Mejor matriz B MAQUINA-CELDA")
+    print("Matriz A MAQUINA-PIEZA")
+    print("   P1-P2-P3-P4-P5-P6-P7")
+    i = 1
+    for maquina in matrizA:
+        print(f"M{i}{maquina}")
+        i+=1
+
+    print("\nMejor matriz B MAQUINA-CELDA")
     print("   C1-C2")
     i = 1
     for maquina in bestMatrizB:
@@ -78,7 +85,7 @@ def mcdp(C, M_max, matrizA, M, P):
     print("   C1-C2")
     i = 1
     for pieza in bestMatrizC:
-        print(f"M{i}{pieza}")
+        print(f"P{i}{pieza}")
         i+=1
     
     print(f"Movimiento entre celdas = {bestScore}")
