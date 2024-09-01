@@ -26,7 +26,7 @@ def crea_matrizB(c, m_max, matriz, m, p):
             fila.append(random.randint(0, 1))
         matrizB.append(fila)
     return matrizB
-
+        
 def crea_matrizC(matrizB, P, C):
     while True:
         matrizC = []
@@ -48,6 +48,7 @@ def mcdp(C, M_max, matrizA, M, P):
     bestMatrizB = []
     bestMatrizC = []
     bestScore = 0
+
     for epoch in range(epochs):
         matrizB = crea_matrizB(C, M_max, matrizA, M, P)
         while not validarRestriccionesB(matrizB, M_max, C, P, M):
