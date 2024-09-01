@@ -1,6 +1,7 @@
 import random
+import itertools
 
-def validarRestricciones(matrizB, M_max, C, P, M):
+def validarRestriccionesB(matrizB, M_max, C, P, M):
     # CADA MAQUINA PUEDE PERTENECER A UNA CELDA
     for i in range(M):
         if sum(matrizB[i]) != 1:
@@ -42,9 +43,6 @@ def funcionObjetivo(M,C,P, matrizA, matrizB, matrizC):
                 score += matrizA[i][j]*matrizC[j][k]*(1-matrizB[i][k])
     return score
 
-def optimizar():
-    return
-
 def mcdp(C, M_max, matrizA, M, P):
     epochs = 100
     bestMatrizB = []
@@ -52,15 +50,15 @@ def mcdp(C, M_max, matrizA, M, P):
     bestScore = 0
     for epoch in range(epochs):
         matrizB = crea_matrizB(C, M_max, matrizA, M, P)
-
-        while not validarRestricciones(matrizB, M_max, C, P, M):
+        while not validarRestriccionesB(matrizB, M_max, C, P, M):
             matrizB = crea_matrizB(C, M_max, matrizA, M, P)
-        matrizC = crea_matrizC(matrizB, P, C)
 
+        matrizC = crea_matrizC(matrizB, P, C)
         while not validarMatrizC(matrizC, P):
             matrizC = crea_matrizC(matrizB,P,C)
         
-        score = funcionObjetivo(M,C,P,matrizA, matrizB, matrizC)
+        score = funcionObjetivo(M,C,P,matrizA, matrizB, matrizC) #La función objetivo ya está sujeto a restricciones, por lo que no
+                                                                 #es necesario comprobarlas nuevamente
         if(bestScore == 0 or score < bestScore):
             bestScore = score
             bestMatrizB = matrizB
@@ -68,7 +66,7 @@ def mcdp(C, M_max, matrizA, M, P):
     
     print(f"Número de ciclos = {epochs}")
 
-    print("Matriz A MAQUINA-PIEZA")
+    print("\nMatriz A MAQUINA-PIEZA")
     print("   P1-P2-P3-P4-P5-P6-P7")
     i = 1
     for maquina in matrizA:
