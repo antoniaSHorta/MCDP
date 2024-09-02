@@ -1,5 +1,5 @@
 import random
-import itertools
+import time
 
 def validarRestriccionesB(matrizB, M_max, C, P, M):
     # CADA MAQUINA PUEDE PERTENECER A UNA CELDA
@@ -44,6 +44,7 @@ def funcionObjetivo(M,C,P, matrizA, matrizB, matrizC):
     return score
 
 def mcdp(C, M_max, matrizA, M, P):
+    exTime = time.time()
     epochs = 100
     bestMatrizB = []
     bestMatrizC = []
@@ -88,6 +89,7 @@ def mcdp(C, M_max, matrizA, M, P):
         i+=1
     
     print(f"Movimiento entre celdas = {bestScore}")
+    print(f"Tiempo de ejecución = {round(time.time() - exTime,2)} segundos")
 
     return
 
