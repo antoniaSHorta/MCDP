@@ -58,7 +58,6 @@ def crearMapa(matriz, columna, fila):
 
 # REPARAR MATRIZ B PARA CUMPLIR LAS RESTRICCIONES TOMANDO SOLUCION NO VIABLE EN VIABLE
 def repararMatrizB(matrizB, M, C, M_max):
-    imprimirMatrizB(matrizB)
     # ARREGLA LA PRIMERA RESTRICCIÓN (CADA MÁQUINA PERTENECE A UNA SOLA CELDA)
     for maquina in range(M):
         for celda in range(C):
@@ -82,6 +81,18 @@ def repararMatrizB(matrizB, M, C, M_max):
                 mapaCeldasMaquinas = crearMapa(matrizB, C, M)
     return matrizB
 
+
+def repararMatrizC(matrizC,P,C):
+    for pieza in range(P):
+        for celda in range(C):
+            if sum(matrizC[pieza]) > 1:
+                while sum(matrizC[pieza]) > 1:
+                    matrizC[pieza][celda] = 0
+            elif sum(matrizC[pieza]) < 1:
+                while sum(matrizC[pieza]) < 1:
+                    matrizC[pieza][celda] = 1
+    return matrizC
+
 def imprimirMatrizB(matrizB):
     # IMPRIMIR LA MATRIZ B
     print("\nMejor matriz B MAQUINA-CELDA")
@@ -98,21 +109,21 @@ def generar_vecino(matrizB, matrizC, M, C, P):
     nueva_matrizC = [fila[:] for fila in matrizC]
 
     # MODIFICAR ALEATORIAMENTE UNA CELDA DE LA MATRIZ B (MÁQUINA-CELDA)
-    maquina = random.randint(0, M - 1)
+    maquinaRand = random.randint(0, M - 1)
     
     # ENCONTRAR CELDA ACTUAL DE LA MÁQUINA, VALIDAR QUE HAYA UN 1
-    if 1 in nueva_matrizB[maquina]:
-        celda_actual = nueva_matrizB[maquina].index(1)  # Obtener la celda actual de la máquina
+    if 1 in nueva_matrizB[maquinaRand]:
+        celda_actual = nueva_matrizB[maquinaRand].index(1)  # Obtener la celda actual de la máquina
     else:
         # Si no hay ninguna celda asignada, asignar una nueva aleatoriamente
         celda_actual = random.randint(0, C - 1)
-        nueva_matrizB[maquina][celda_actual] = 1
+        nueva_matrizB[maquinaRand][celda_actual] = 1
     
-    nueva_matrizB[maquina][celda_actual] = 0  # DESASIGNAR DE LA CELDA ACTUAL
+    nueva_matrizB[maquinaRand][celda_actual] = 0  # DESASIGNAR DE LA CELDA ACTUAL
     
     # EVITAR QUE SE QUEDE SIN CELDA ASIGNADA
     nueva_celda = random.choice([k for k in range(C) if k != celda_actual])  # Asignar una nueva celda diferente
-    nueva_matrizB[maquina][nueva_celda] = 1  # Asignar a una nueva celda aleatoria
+    nueva_matrizB[maquinaRand][nueva_celda] = 1  # Asignar a una nueva celda aleatoria
 
     # MODIFICAR ALEATORIAMENTE UNA CELDA DE LA MATRIZ C (PIEZA-CELDA)
     pieza = random.randint(0, P - 1)
@@ -137,12 +148,16 @@ def simulated_annealing(matrizA, M, P, C, M_max, temperatura_inicial, factor_enf
     mejor_matrizC = crea_matrizC(mejor_matrizB, P, C)
     mejor_score = funcionObjetivo(M, C, P, matrizA, mejor_matrizB, mejor_matrizC)
 
+    mejor_matrizB = repararMatrizB(mejor_matrizB,M,C,M_max)
+    mejor_matrizC = repararMatrizC(mejor_matrizC,P,M)
     # INICIALIZAR LA TEMPERATURA
     temperatura = temperatura_inicial
 
     for _ in range(iteraciones):
         # GENERAR UNA NUEVA SOLUCIÓN VECINA
         nueva_matrizB, nueva_matrizC = generar_vecino(mejor_matrizB, mejor_matrizC, M, C, P)
+        nueva_matrizB = repararMatrizB(nueva_matrizB,M,C,M_max)
+        nueva_matrizC = repararMatrizC(nueva_matrizC,P,C)
         nuevo_score = funcionObjetivo(M, C, P, matrizA, nueva_matrizB, nueva_matrizC)
 
         # SI LA NUEVA SOLUCIÓN ES MEJOR, LA ACEPTAMOS
@@ -150,7 +165,7 @@ def simulated_annealing(matrizA, M, P, C, M_max, temperatura_inicial, factor_enf
             mejor_matrizB, mejor_matrizC = nueva_matrizB, nueva_matrizC
             mejor_score = nuevo_score
         else:
-            # ACEPTAR SOLUCIÓN PEOR CON CIERTA PROBABILIDAD
+            # ACEPTAR SOLUCIÓN PEOR CON CRITERIO DE ACEPTACION
             delta = nuevo_score - mejor_score
             probabilidad_aceptacion = numpy.exp(-delta / (temperatura + 1e-10))##numpy.exp(-delta / temperatura)
             if random.random() < probabilidad_aceptacion:
@@ -168,8 +183,8 @@ def mcdp(C, M_max, matrizA, M, P):
 
     # PARÁMETROS DEL SIMULATED ANNEALING
     temperatura_inicial = 10000
-    factor_enfriamiento = 0.99
-    iteraciones = 1000
+    factor_enfriamiento = 0.5
+    iteraciones = 10
 
     # EJECUTAR SIMULATED ANNEALING PARA OPTIMIZACIÓN
     mejor_matrizB, mejor_matrizC, mejor_score =  simulated_annealing(matrizA, M, P, C, M_max, temperatura_inicial, factor_enfriamiento, iteraciones)
