@@ -1,7 +1,10 @@
 # MCDP
-Algoritmo optimización Manufacturing Cell Design.
+Resolución del problema Manufacturing Cell Design Problem (MCDP).
 
-Integrantes: 
+# Instrucciones
+Para ejecutar el programa, asegúrate de tener instalado Python (recomendado versión 3.7 o superior)
+
+# Integrantes: 
 - Matías Celedón Matus
 - Antonia Salinas Horta
 - Joaquín Toro Godoy
