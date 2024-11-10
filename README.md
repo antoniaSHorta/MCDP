@@ -1,10 +1,18 @@
-# MCDP
-Resolución del problema Manufacturing Cell Design Problem (MCDP).
+# MCDP - Manufacturing Cell Design Problem
 
-# Instrucciones
-Para ejecutar el programa, asegúrate de tener instalado Python (recomendado versión 3.7 o superior)
+Este programa resuelve el Manufacturing Cell Design Problem (MCDP), utilizando un algoritmo genético (AG).
 
-# Integrantes: 
+
+# Requisitos
+
+Asegúrate de tener instalado Python, puedes descargarlo desde [aquí](https://www.python.org/downloads/).
+
+**Bibliotecas necesarias:**
+- Random (ya incluida en Python)
+- Time (ya incluida en Python)
+
+
+# Integrantes
 - Matías Celedón Matus
 - Antonia Salinas Horta
 - Joaquín Toro Godoy
