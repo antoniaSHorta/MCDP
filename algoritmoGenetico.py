@@ -1,6 +1,7 @@
 import random
 import time
 
+# VALIDACION RESTRICCIONES MATRIZ B
 def validarRestriccionesB(matrizB, M_max, C, M):
     # CADA MÁQUINA PUEDE PERTENECER A UNA SOLA CELDA
     for i in range(M):
@@ -12,6 +13,7 @@ def validarRestriccionesB(matrizB, M_max, C, M):
             return False
     return True
 
+# VALIDACION RESTRICCIONES MATRIZ C
 def validarMatrizC(matrizC, P):
     # CADA PIEZA PUEDE PERTENECER A UNA SOLA CELDA
     for c in range(P):
@@ -19,6 +21,7 @@ def validarMatrizC(matrizC, P):
             return False
     return True
 
+# CREA UNA MATRIZ B DE MANERA ALEATORIA Y RETORNA UNA SOLUCION VIABLE AL REPARARLA
 def crea_matrizB(C, M_max, M):
     matrizB = [[0 for _ in range(C)] for _ in range(M)]
     for i in range(M):
@@ -26,12 +29,10 @@ def crea_matrizB(C, M_max, M):
         matrizB[i][celda] = 1
     return repararMatrizB(matrizB,M,C,M_max)
 
-        
+# CREA UNA MATRIZ c DE MANERA ALEATORIA Y RETORNA UNA SOLUCION VIABLE AL REPARARLA       
 def crea_matrizC(P, C):
-    # GENERAR MATRIZ ALEATORIA C (ASIGNACIÓN DE PIEZAS A CELDAS)
     matrizC = [[0 for _ in range(C)] for _ in range(P)]
     for i in range(P):
-        # ASIGNAR CADA PIEZA i UNA CELDA ALEATORIA
         celda = random.randint(0, C - 1)
         matrizC[i][celda] = 1
     return repararMatrizC(matrizC,P,C)
@@ -55,7 +56,7 @@ def crearMapa(matriz, columna, fila):
         mapa[celda] = sumaMaquinas
     return mapa
 
-# REPARAR MATRIZ B PARA CUMPLIR LAS RESTRICCIONES TOMANDO SOLUCION NO VIABLE EN VIABLE
+# REPARAR MATRIZ B PARA CUMPLIR LAS RESTRICCIONES TOMANDO SOLUCION NO VIABLES EN VIABLES
 def repararMatrizB(matrizB, M, C, M_max):
     # ARREGLA LA PRIMERA RESTRICCIÓN (CADA MÁQUINA PERTENECE A UNA SOLA CELDA)
     for maquina in range(M):
@@ -80,7 +81,7 @@ def repararMatrizB(matrizB, M, C, M_max):
                 mapaCeldasMaquinas = crearMapa(matrizB, C, M)
     return matrizB
 
-
+# REPARAR MATRIZ C PARA CUMPLIR LAS RESTRICCIONES TOMANDO SOLUCION NO VIABLES EN VIABLES
 def repararMatrizC(matrizC,P,C):
     for pieza in range(P):
         for celda in range(C):
@@ -92,15 +93,31 @@ def repararMatrizC(matrizC,P,C):
                     matrizC[pieza][celda] = 1
     return matrizC
 
+# IMPRIMIR LA MATRIZ B
 def imprimirMatrizB(matrizB):
-    # IMPRIMIR LA MATRIZ B
-    print("\nMejor matriz B MAQUINA-CELDA")
-    print("   C1-C2")
-    i = 1
-    for maquina in matrizB:
-        print(f"M{i}{maquina}")
-        i += 1
+    print("\nMatriz B MAQUINA-CELDA")
+    print("   " + " ".join(f"C{celda+1}" for celda in range(len(matrizB[0]))))
+    for i,maquina in enumerate(matrizB, start=1):
+        print(f"M{i} {maquina}")
     
+# IMPRIMIR LA MATRIZ C    
+def imprimirMatrizC(matrizC):
+    print("\nMatriz C PIEZA-CELDA")
+    print("   " + " ".join(f"C{celda+1}" for celda in range(len(matrizC[0]))))
+    for i,pieza in enumerate(matrizC, start=1):
+        print(f"P{i} {pieza}")
+
+# GENERAR POBLACION INICIAL DE MANERA ALEATORIA
+def crearPoblacionInicial(tam_poblacion,C,M_max,M,P,matrizA):
+    poblacion=[]
+    for _ in range(tam_poblacion):
+        matriz_B = crea_matrizB(C, M_max, M)
+        matriz_B 
+        matriz_C = crea_matrizC(P, C)
+        costo = funcionObjetivo(M, C, P, matrizA, matriz_B, matriz_C)
+        poblacion.append((matriz_B, matriz_C, costo))
+    return poblacion
+
 # FUNCIÓN PARA LA SELECCIÓN POR RULETA
 def seleccion_ruleta(poblacion):
     total_fitness = sum(1 / individuo[2] for individuo in poblacion)
@@ -161,15 +178,11 @@ def mutacion_bit_flip(matriz, probabilidad):
 
 
 def genetico(matrizA, M, P, C, M_max, tam_poblacion, tasa_mutacion, num_generaciones):
-
+    # DEFINE MEJOR SOLUCIÓN ENCONTRADA PARA COMPROBAR ESTANCAMIENTOS
+    mejorCosto = 1000000000000
+    cont = 0
     # GENERAR POBLACION ALEATORIA
-    poblacion = []
-    for _ in range(tam_poblacion):
-        matriz_B = crea_matrizB(C, M_max, M)
-        matriz_B 
-        matriz_C = crea_matrizC(P, C)
-        costo = funcionObjetivo(M, C, P, matrizA, matriz_B, matriz_C)
-        poblacion.append((matriz_B, matriz_C, costo))
+    poblacion = crearPoblacionInicial(tam_poblacion,C,M_max,M,P,matrizA)
     
     # EVOLUCION
     for gen in range(num_generaciones):
@@ -210,6 +223,17 @@ def genetico(matrizA, M, P, C, M_max, tam_poblacion, tasa_mutacion, num_generaci
         
         # ITERACIONES
         mejor_actual = poblacion[0]
+        
+        # SE COMPRUEBA SI LA FUNCIÓN OBJETIVO NO MEJORA PARA DETENER EL PROGRAMA, YA QUE SIGNIFICA QUE PROBABLEMENTE ENCONTRÓ EL MÍNIMO FINAL (NO EL GLOBAL NECESARIAMENTE)
+        if(mejorCosto == mejor_actual[2]):
+            cont+=1
+            if(cont==80):
+                print("No se muestra mejora, deteniendo el programa...")
+                return poblacion[0]
+        else:
+            mejorCosto = funcionObjetivo(M, C, P, matrizA, mejor_actual[0], mejor_actual[1])
+            cont=0
+
         print(f"Generación {gen + 1}: Mejor costo = {mejor_actual[2]}")
     
     return poblacion[0]
@@ -228,12 +252,9 @@ def mcdp(C, M_max, matrizA, M, P):
 
     # MOSTRAR RESULTADOS OPTIMIZADOS
     print("\nAlgoritmo Genetico")
-    imprimirMatrizB(mejor_matrizB)  # MEJOR MATRIZ B (MAQUINAS-CELDAS)
-    print("\n")
-    
-    print("\nMejor matriz C PIEZA-CELDA")
-    for i, pieza in enumerate(mejor_matrizC, start=1):
-        print(f"P{i}: {pieza}")
+    imprimirMatrizB(mejor_matrizB)
+    print()
+    imprimirMatrizC(mejor_matrizC)
     
     tiempo_ejecucion=round(time.time() - tiempo_inicio, 2)
 
@@ -244,9 +265,9 @@ def mcdp(C, M_max, matrizA, M, P):
     return mejor_matrizB, mejor_matrizC, mejor_score, tiempo_ejecucion
 
 
-# INSTANCIAS
+# INSTANCIAS 
 
-matrizA =[
+matrizA1 =[
     [1,1,1,0,1,0,0],
     [1,1,1,0,0,1,0],
     [0,0,1,1,0,1,1],
@@ -254,7 +275,7 @@ matrizA =[
     [1,1,0,1,1,0,0],
 ]
 
-"""matrizA = [
+matrizA2 = [
     [0,0,0,0,1,0,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,1,1,0,0,1,0,0,1,0],
     [0,1,0,0,1,0,0,0,1,0,0,0,0,0,0,0,1,0,0,1,1,1,0,0,1,1,1,0,0,0],
     [0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0],
@@ -273,7 +294,7 @@ matrizA =[
     [0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,1,1,1,1,1,1,1],
 ]
 
-matrizA = [
+matrizA3 = [
     [1,0,1,1,0,0,1,0,1,0,1,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0],
     [0,0,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,0],
     [0,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
@@ -290,12 +311,23 @@ matrizA = [
     [0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,1,1,1,1,0,1,0,0,1,0,1,0,0,0],
     [0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0],
     [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,1,1,0,0,0,0,1,0,0,0,0],
-]"""
-
+]
 
 # LLAMADA A LA FUNCIÓN MCDP
-num_maquinas = len(matrizA)
-num_piezas = len(matrizA[0])
-num_celdas = 2
-max_maquinas_por_celda = 8 
-mejor_B, mejor_C, mejor_costo = mcdp(num_celdas, max_maquinas_por_celda, matrizA, num_maquinas, num_piezas)
+print()
+print("¿Qué instancia desea utilizar?\n")
+
+print("1.- Instancia 1")
+print("2.- Instancia 2")
+print("3.- Instancia 3\n")
+
+opcion = input("Seleccione una opción (1, 2 o 3): ")
+
+if opcion == "1":
+    mcdp(2, 3, matrizA1, len(matrizA1) , len(matrizA1[0]))
+elif opcion == "2":
+    mcdp(2, 8, matrizA2, len(matrizA2) , len(matrizA2[0]))
+elif opcion == "3":
+    mcdp(2, 8, matrizA3, len(matrizA3) , len(matrizA3[0]))
+else:
+    print("Opción no válida. Por favor, seleccione 1, 2 o 3.")
