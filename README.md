@@ -12,6 +12,17 @@ Asegúrate de tener instalado Python, puedes descargarlo desde [aquí](https://w
 - Time (ya incluida en Python)
 
 
+# Instrucciones para ejecutar el programa.
+
+1. Descargar el repositorio.
+
+2. Abrir en un entorno de desarrollo, preferiblemente Visual Studio.
+
+3. Ejecutar el archivo "algoritmoGenetico.py".
+
+4. Revisar la "Terminal" para visualizar resultados.
+
+
 # Integrantes
 - Matías Celedón Matus
 - Antonia Salinas Horta
